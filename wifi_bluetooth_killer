@@ -1,4 +1,7 @@
 #!/bin/bash
+
+usb_1() {
+
 echo;
 echo "Enable or Disable Wi-Fi and Bluetooth network adapters or USB ports"
 echo "Developer: leandroibov";
@@ -75,4 +78,112 @@ sudo systemctl stop NetworkManager
 sudo systemctl disable NetworkManager
 sudo systemctl enable NetworkManager
 sudo systemctl start NetworkManager
+
+}
+
+# Method for option 2
+pci_2() {
+echo "All pci devices...";
+lspci;
+echo;
+echo "wifi, bluetooth, ethernet modules and drivers in use..."
+echo "---------------------------------------------------------------";
+echo "wireless";
+lspci -k | grep -A 3 -i wireless;
+echo "---------------------------------------------------------------";
+echo "bluetooth";
+lspci -k | grep -A 3 -i bluetooth;
+echo "---------------------------------------------------------------";
+echo "ethernet";
+lspci -k | grep -A 3 -i ethernet;
+echo "---------------------------------------------------------------";
+echo;
+
+echo "Select the kernel driver in use or module (in use or not)"
+echo "Example: Kernel driver in use or module: ath9k. Type 'ath9k'..."
+read -rp "Enter the module name: " module
+echo "The chosen module is: $module"
+echo;
+
+echo "Do you want to enable (yes) or disable (no) the Wi-Fi or Bluetooth? (yes/no)"
+            read answer
+
+            # Enable or disable device
+            if [[ "$answer" == "yes" ]]; then
+            echo;
+                echo "Enabling the device..."
+                sudo modprobe $module;
+            else
+            echo;
+                echo "Disabling the device..."
+                sudo rmmod $module;
+                sudo modprobe -r $module;
+            fi
+            
+          echo;
+          echo "wifi, bluetooth, ethernet modules and drivers in use..."
+echo "---------------------------------------------------------------";
+echo "wireless";
+lspci -k | grep -A 3 -i wireless;
+echo "---------------------------------------------------------------";
+echo "bluetooth";
+lspci -k | grep -A 3 -i bluetooth;
+echo "---------------------------------------------------------------";
+echo "ethernet";
+lspci -k | grep -A 3 -i ethernet;
+echo "---------------------------------------------------------------";
+echo;  
+echo "---------------------------------------------------------------";
+echo "Network Interfaces with nmcli";
+nmcli;
+echo "---------------------------------------------------------------";    
+echo;
+# Restart NetworkManager
+echo "Restarting Network..."
+sudo systemctl stop NetworkManager
+sudo systemctl disable NetworkManager
+sudo systemctl enable NetworkManager
+sudo systemctl start NetworkManager              
+}
+
+# Method for option 3
+exit_3() {
+    echo;
+    echo "Exiting the program in 6 seconds..."
+    sleep 6
+}
+
+
+
+
+
+
+
+# Main loop
+while true; do
+echo;
+    echo "-------------------------------------------------------------------------------------------------------------------------------------";
+    echo "To turn off or turn on the WiFi and Bluetooth of the system, you need to use one of the first two options. Which one would you like?"
+    echo "Option 1: WiFi and Bluetooth via USB"
+    echo "Option 2: WiFi and Bluetooth via PCI"
+    echo "Option 3: Exit the program"
+
+    read -p "Please choose an option (1/2/3): " choice
+    echo "-------------------------------------------------------------------------------------------------------------------------------------";
+    case $choice in
+        1)
+            usb_1
+            ;;
+        2)
+            pci_2
+            ;;
+        3)
+            exit_3
+            break
+            ;;
+        *)
+            echo "Invalid option. Please choose 1, 2, or 3."
+            ;;
+    esac
+done
 
