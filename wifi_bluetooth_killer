@@ -1,5 +1,8 @@
 #!/bin/bash
 
+####METHOD1
+####METHOD1
+####METHOD1
 usb_1() {
 
 echo;
@@ -81,7 +84,9 @@ sudo systemctl start NetworkManager
 
 }
 
-# Method for option 2
+####METHOD2
+####METHOD2
+####METHOD2
 pci_2() {
 echo "All pci devices...";
 lspci;
@@ -146,8 +151,80 @@ sudo systemctl enable NetworkManager
 sudo systemctl start NetworkManager              
 }
 
-# Method for option 3
-exit_3() {
+
+
+####METHOD3
+####METHOD3
+####METHOD3
+pci_3() {
+
+
+echo "All pci devices...";
+lspci;
+echo;
+echo "wifi, bluetooth, ethernet modules and drivers in use..."
+echo "---------------------------------------------------------------";
+echo "wireless";
+lspci -k | grep -A 3 -i wireless;
+echo "---------------------------------------------------------------";
+echo "bluetooth";
+lspci -k | grep -A 3 -i bluetooth;
+echo "---------------------------------------------------------------";
+echo "ethernet";
+lspci -k | grep -A 3 -i ethernet;
+echo "---------------------------------------------------------------";
+echo;
+
+echo "Select the kernel driver in use or module (in use or not)"
+echo "Example: Kernel driver in use or module: ath9k. Type 'ath9k'..."
+read -rp "Enter the module name: " module
+echo "The chosen module is: $module"
+echo;
+
+
+echo "Disabling the device..."
+sudo rmmod $module;
+sudo modprobe -r $module;
+echo;
+
+echo "Adding module to blacklist...";
+echo "sudo echo "$modulo" > /etc/modprobe.d/blacklist.conf;";
+sudo echo "$modulo" > /etc/modprobe.d/blacklist.conf;
+echo "sudo update-initramfs -u;";
+sudo update-initramfs -u;
+            
+          echo;
+          echo "wifi, bluetooth, ethernet modules and drivers in use..."
+echo "---------------------------------------------------------------";
+echo "wireless";
+lspci -k | grep -A 3 -i wireless;
+echo "---------------------------------------------------------------";
+echo "bluetooth";
+lspci -k | grep -A 3 -i bluetooth;
+echo "---------------------------------------------------------------";
+echo "ethernet";
+lspci -k | grep -A 3 -i ethernet;
+echo "---------------------------------------------------------------";
+echo;  
+echo "---------------------------------------------------------------";
+echo "Network Interfaces with nmcli";
+nmcli;
+echo "---------------------------------------------------------------";    
+echo;
+# Restart NetworkManager
+echo "Restarting Network..."
+sudo systemctl stop NetworkManager
+sudo systemctl disable NetworkManager
+sudo systemctl enable NetworkManager
+sudo systemctl start NetworkManager  
+
+
+}
+
+####METHOD4
+####METHOD4
+####METHOD4
+exit_4() {
     echo;
     echo "Exiting the program in 6 seconds..."
     sleep 6
@@ -166,9 +243,10 @@ echo;
     echo "To turn off or turn on the WiFi and Bluetooth of the system, you need to use one of the first two options. Which one would you like?"
     echo "Option 1: WiFi and Bluetooth via USB"
     echo "Option 2: WiFi and Bluetooth via PCI"
-    echo "Option 3: Exit the program"
+    echo "Option 3: Disable WiFi and Bluetooth via PCI permanently before boot"
+    echo "Option 4: Exit the program"
 
-    read -p "Please choose an option (1/2/3): " choice
+    read -p "Please choose an option (1/2/3/4): " choice
     echo "-------------------------------------------------------------------------------------------------------------------------------------";
     case $choice in
         1)
@@ -177,8 +255,12 @@ echo;
         2)
             pci_2
             ;;
+            
         3)
-            exit_3
+            pci_3
+            ;;
+        4)
+            exit_4
             break
             ;;
         *)
