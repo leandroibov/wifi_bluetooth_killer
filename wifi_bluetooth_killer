@@ -188,8 +188,8 @@ sudo modprobe -r $module;
 echo;
 
 echo "Adding module to blacklist...";
-echo "sudo echo "$modulo" > /etc/modprobe.d/blacklist.conf;";
-sudo echo "$modulo" > /etc/modprobe.d/blacklist.conf;
+echo "sudo echo "blacklist "$modulo"" > /etc/modprobe.d/blacklist.conf;";
+sudo echo "blacklist "$modulo"" > /etc/modprobe.d/blacklist.conf;
 echo "sudo update-initramfs -u;";
 sudo update-initramfs -u;
             
