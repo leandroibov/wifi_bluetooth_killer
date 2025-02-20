@@ -181,17 +181,27 @@ read -rp "Enter the module name: " module
 echo "The chosen module is: $module"
 echo;
 
-
-echo "Disabling the device..."
-sudo rmmod $module;
-sudo modprobe -r $module;
+echo "Enabling module for settings"
+echo "sudo modprobe $module;";
+sudo modprobe $module;
 echo;
 
 echo "Adding module to blacklist...";
-echo "sudo echo "blacklist "$modulo"" > /etc/modprobe.d/blacklist.conf;";
-sudo echo "blacklist "$modulo"" > /etc/modprobe.d/blacklist.conf;
+echo "sudo echo "blacklist "$module"" > /etc/modprobe.d/blacklist.conf;";
+sudo echo "blacklist "$module"" > /etc/modprobe.d/blacklist.conf;
+
+echo;
+echo "sudo cat /etc/modprobe.d/blacklist.conf";
+sudo cat /etc/modprobe.d/blacklist.conf;
+
+echo;
 echo "sudo update-initramfs -u;";
 sudo update-initramfs -u;
+
+echo "Disabling the module..."
+sudo rmmod $module;
+sudo modprobe -r $module;
+echo;
             
           echo;
           echo "wifi, bluetooth, ethernet modules and drivers in use..."
@@ -218,6 +228,11 @@ sudo systemctl disable NetworkManager
 sudo systemctl enable NetworkManager
 sudo systemctl start NetworkManager  
 
+echo;
+echo "----------------------------------------------------"
+echo "WARNING: REBOOT TO APPLY NEW SETTINGS"
+echo "----------------------------------------------------"
+echo;
 
 }
 
