@@ -54,9 +54,22 @@ for dir in /sys/bus/usb/devices/*; do
             if [[ "$answer" == "yes" ]]; then
                 echo "Enabling the device..."
                 sudo echo 1 > "$dir/authorized"
+                echo;
+echo "=== Enabling Bluetooth USB module (btusb) ===";
+echo "sudo modprobe btusb";
+sudo modprobe btusb;
+echo "Bluetooth USB module (btusb) has been loaded.";
+echo;
             else
                 echo "Disabling the device..."
                 sudo echo 0 > "$dir/authorized"
+                echo;
+echo "=== Disabling Bluetooth USB module (btusb) ===";
+echo "sudo modprobe -r btusb";
+sudo modprobe -r btusb;
+echo "Bluetooth USB module (btusb) has been removed.";
+echo;
+                
             fi
 
             echo ""
@@ -87,7 +100,9 @@ sudo systemctl start NetworkManager
 ####METHOD2
 ####METHOD2
 ####METHOD2
+
 pci_2() {
+echo;
 echo "All pci devices...";
 lspci;
 echo;
@@ -239,6 +254,80 @@ echo;
 ####METHOD4
 ####METHOD4
 ####METHOD4
+boot_bluetooth_usb_always()
+{
+echo;
+echo "Do you want to check the Bluetooth module (btusb)? (yes/no)";
+read -rp "Enter: " check_bt_module
+
+if [[ "$check_bt_module" == "yes" ]]; then
+    echo "Checking Bluetooth module (btusb)";
+    echo "lsmod | grep btusb";
+    lsmod | grep btusb;
+
+    echo "";
+    echo "modinfo btusb";
+    modinfo btusb;
+    echo;
+else
+    echo "Skipping Bluetooth module check.";
+    echo;
+fi
+echo;
+
+echo "Enable or Disable Bluetooth module (btusb) permanently via blacklist"
+read -rp "Do you want to enable or disable Bluetooth module? (enable/disable): " bt_module_action
+echo "You selected: $bt_module_action"
+
+if [[ "$bt_module_action" == "disable" ]]; then
+    echo "Disabling Bluetooth module via blacklist...";
+    
+    echo 'sudo touch /etc/modprobe.d/blacklist-bluetooth.conf';
+    sudo touch /etc/modprobe.d/blacklist-bluetooth.conf;
+    
+    echo 'sudo echo "blacklist btusb" > /etc/modprobe.d/blacklist-bluetooth.conf';
+    echo "blacklist btusb" | sudo tee /etc/modprobe.d/blacklist-bluetooth.conf > /dev/null;
+    
+    echo "";
+    echo "Current configuration in /etc/modprobe.d/blacklist-bluetooth.conf:";
+    cat /etc/modprobe.d/blacklist-bluetooth.conf;
+
+    echo "";
+    echo "Updating initramfs to apply changes...";
+    echo "sudo update-initramfs -u";
+    sudo update-initramfs -u;
+
+    echo "";
+    echo "Bluetooth module (btusb) will be blocked on next boot.";
+
+elif [[ "$bt_module_action" == "enable" ]]; then
+    echo "Enabling Bluetooth module by removing from blacklist...";
+    
+    echo 'sudo echo "" > /etc/modprobe.d/blacklist-bluetooth.conf';
+    echo "" | sudo tee /etc/modprobe.d/blacklist-bluetooth.conf > /dev/null;
+    
+    echo "";
+    echo "Current configuration in /etc/modprobe.d/blacklist-bluetooth.conf:";
+    cat /etc/modprobe.d/blacklist-bluetooth.conf;
+
+    echo "";
+    echo "Updating initramfs to apply changes...";
+    echo "sudo update-initramfs -u";
+    sudo update-initramfs -u;
+
+    echo "";
+    echo "Bluetooth module (btusb) will load on next boot.";
+
+else
+    echo "Invalid option. Please enter 'enable' or 'disable'.";
+fi
+
+}
+
+
+####METHOD5
+####METHOD5
+####METHOD5
 exit_4() {
     echo;
     echo "Exiting the program in 6 seconds..."
@@ -259,14 +348,16 @@ echo;
     echo "Option 1: WiFi and Bluetooth via USB"
     echo "Option 2: WiFi and Bluetooth via PCI"
     echo "Option 3: Disable WiFi and Bluetooth via PCI permanently before boot"
-    echo "Option 4: Exit the program"
+    echo "Option 4: Bluetooth or Wifi via USB permanently before boot"
+    echo "Option 5: Exit the program"
 
-    read -p "Please choose an option (1/2/3/4): " choice
+    read -p "Please choose an option (1/2/3/4/5): " choice
     echo "-------------------------------------------------------------------------------------------------------------------------------------";
     case $choice in
         1)
             usb_1
             ;;
+             
         2)
             pci_2
             ;;
@@ -274,7 +365,12 @@ echo;
         3)
             pci_3
             ;;
+            
         4)
+            boot_bluetooth_usb_always
+            ;;  
+            
+        5)
             exit_4
             break
             ;;
